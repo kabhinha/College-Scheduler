@@ -91,7 +91,7 @@ def isAlloted(SUB:str, LAB:str, Date:str, GROUP:str="OLD")->int:
     return f
 
 # Main Function
-def makeGroups(df, len_df, date, sub, lab, aktu=1, initalize=0):
+def makeGroups(df, len_df, date, sub, lab, aktu, initalize=0):
     """
     Make groups and returns the allocation details
     0: Groups are make successfully (Also return grouped df)
@@ -154,7 +154,7 @@ def makeGroups(df, len_df, date, sub, lab, aktu=1, initalize=0):
 
 
 def chkoutliner(roll):
-    "Returns False if roll number is not of the considerd session"
+    "Returns True if roll number is not of the considerd session"
     with open("./session.txt") as f:
         session = f.read()
     if f"{session[-2:]}014301" not in str(roll):
@@ -190,7 +190,11 @@ def rangeGroups(sub, lab, date):
         if i!="G1":
             exec(f"{i} = list(df[df['Batch']=='{i}'].to_dict()['Roll No.'].values())")
             Max, Min, Total = eval(f"max({i})"), eval(f"min({i})"), eval(f"len({i})")
-            ranges.append([f'{i}', f"{Min} - {Max}", Total])
+            if Total != 30:
+                exec(f"outliers = [i for i in {i} if chkoutliner(i)]")
+                ranges.append([f'{i}', f"{Min} - {Max}\n{outliers}", Total])
+            else:
+                ranges.append([f'{i}', f"{Min} - {Max}", Total])
     df = pd.DataFrame(ranges, columns=["Group", "Roll No. Range", "Total Students"])
     return df
 

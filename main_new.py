@@ -40,11 +40,15 @@ if __name__=="__main__":
                     df_ = pd.DataFrame([])
                 DF_ = pd.concat([df_, DF_])
                 total_performed = DF_["Total Students"].sum()
-                print(total_performed, len_df)
                 if total_performed in [240, 220, 200] and len_df>total_performed:
                     otr = list(df["Roll No."][total_performed:])
-                    DF_.loc[len(DF_)] = ["Other Deptartment Send", f"{min(otr)} - {max(otr)}", len(otr)]
-                    print(otr)
+                    diploma = {otr[i] for i in range(len(otr)) if chkoutliner(otr[i])}
+                    otr = set(otr) - diploma
+                    otr, diploma = list(otr), list(diploma)
+                    otr.sort()
+                    diploma.sort()
+                    otrs = f'{min(otr)} - {max(otr)}\n{min(diploma)} - {max(diploma)}'
+                    DF_.loc[len(DF_)] = ["Other Deptartment Send", otrs, len(otr)+len(list(diploma))]
 
             with pd.ExcelWriter("./data/output.xlsx") as writer:
                 display_dir().to_excel(
